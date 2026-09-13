@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../models/song.dart';
-import '../models/playlist.dart';
 import '../database/database_helper.dart';
 
 class MetadataScanner {
@@ -142,6 +141,7 @@ class MetadataScanner {
           genre: updatedSong.genre,
           year: updatedSong.year,
           trackNumber: updatedSong.trackNumber,
+          pictures: const [],
         );
         await at.AudioTags.write(updatedSong.filePath, tag);
       } catch (e) {

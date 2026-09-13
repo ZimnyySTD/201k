@@ -22,31 +22,34 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
   SongLyrics? _lyrics;
   bool _isLoadingLyrics = false;
   final ScrollController _lyricsScrollCtrl = ScrollController();
+  String? _lastSongId;
 
   @override
-  void initState() {
-    super.initState();
-    _fetchLyrics();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkAndUpdateSongState();
   }
 
-  void _fetchLyrics() async {
-    final engine = Provider.of<PlaybackEngine>(context, listen: false);
-    final theme = Provider.of<ThemeProvider>(context, listen: false);
+  void _checkAndUpdateSongState() {
+    final engine = Provider.of<PlaybackEngine>(context);
+    final song = engine.currentSong;
 
-    if (engine.currentSong != null) {
-      theme.updateAccentFromImage(engine.currentSong!.artworkPath);
-      setState(() => _isLoadingLyrics = true);
-      final lyrics = await LyricsService.getLyricsForSong(
-        engine.currentSong!.id,
-        engine.currentSong!.title,
-        engine.currentSong!.artist,
-      );
-      if (mounted) {
-        setState(() {
-          _lyrics = lyrics;
-          _isLoadingLyrics = false;
-        });
-      }
+    if (song != null && song.id != _lastSongId) {
+      _lastSongId = song.id;
+      final theme = Provider.of<ThemeProvider>(context, listen: false);
+      theme.updateAccentFromImage(song.artworkPath);
+      _fetchLyricsForCurrentSong(song.id, song.title, song.artist);
+    }
+  }
+
+  void _fetchLyricsForCurrentSong(String songId, String title, String artist) async {
+    setState(() => _isLoadingLyrics = true);
+    final lyrics = await LyricsService.getLyricsForSong(songId, title, artist);
+    if (mounted && _lastSongId == songId) {
+      setState(() {
+        _lyrics = lyrics;
+        _isLoadingLyrics = false;
+      });
     }
   }
 
