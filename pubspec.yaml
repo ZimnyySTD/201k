@@ -40,14 +40,14 @@ dependencies:
   path: ^1.9.1
   path_provider: ^2.1.6
   palette_generator: ^0.3.3+7
-  file_picker: ^12.3.0
+  file_picker: 8.1.7
   http: ^1.6.0
   shared_preferences: ^2.5.5
   just_audio: ^0.10.6
   audio_service: ^0.18.19
   audiotags: ^1.4.5
   sqflite_common_ffi_web: ^1.1.1
-  lucide_icons: 0.257.0
+  lucide_icons_flutter: ^3.1.19
 
 dev_dependencies:
   flutter_test:
