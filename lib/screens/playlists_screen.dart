@@ -84,16 +84,16 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
       appBar: AppBar(
         backgroundColor: theme.backgroundColor,
         elevation: 0,
-        title: Text('Playlists', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold)),
+        title: Text('Playlists', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold, fontSize: 22)),
         actions: [
           IconButton(
-            icon: Icon(LucideIcons.plus, color: theme.accentColor),
+            icon: Icon(LucideIcons.plus, color: theme.textColor),
             onPressed: _showCreatePlaylistDialog,
           )
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: theme.accentColor))
+          ? Center(child: CircularProgressIndicator(color: theme.textColor))
           : _playlists.isEmpty
               ? Center(
                   child: Column(
@@ -102,9 +102,9 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
                       Icon(LucideIcons.listMusic, size: 56, color: theme.subtextColor.withAlpha(100)),
                       const SizedBox(height: 16),
                       Text('No Playlists Created', style: TextStyle(color: theme.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: theme.accentColor),
+                        style: ElevatedButton.styleFrom(backgroundColor: theme.textColor, foregroundColor: theme.surfaceColor),
                         icon: const Icon(LucideIcons.plus, size: 18),
                         label: const Text('Create Playlist'),
                         onPressed: _showCreatePlaylistDialog,
@@ -113,7 +113,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 140),
                   itemCount: _playlists.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
@@ -128,10 +128,10 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
                             width: 56,
                             height: 56,
                             decoration: BoxDecoration(
-                              color: theme.accentColor.withAlpha(25),
+                              color: theme.textColor.withAlpha(15),
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: Icon(LucideIcons.listMusic, color: theme.accentColor, size: 28),
+                            child: Icon(LucideIcons.listMusic, color: theme.textColor, size: 28),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -223,10 +223,10 @@ class _PlaylistDetailsScreenState extends State<_PlaylistDetailsScreen> {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: theme.accentColor.withAlpha(30),
+                      color: theme.textColor.withAlpha(20),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(LucideIcons.listMusic, color: theme.accentColor, size: 36),
+                    child: Icon(LucideIcons.listMusic, color: theme.textColor, size: 36),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -244,7 +244,7 @@ class _PlaylistDetailsScreenState extends State<_PlaylistDetailsScreen> {
           ),
           Expanded(
             child: ReorderableListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 140),
               itemCount: _songs.length,
               onReorder: (oldIndex, newIndex) async {
                 if (newIndex > oldIndex) newIndex--;

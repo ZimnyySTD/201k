@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:file_picker/file_picker.dart';
 import 'theme/theme_provider.dart';
 import 'services/playback_engine.dart';
 import 'services/metadata_scanner.dart';
@@ -58,60 +59,6 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _addDemoDataIfEmpty();
-  }
-
-  Future<void> _addDemoDataIfEmpty() async {
-    final songs = await DatabaseHelper.instance.getAllSongs();
-    if (songs.isEmpty) {
-      final demoSongs = [
-        Song(
-          id: 'demo_1',
-          title: 'Midnight Resonance',
-          artist: 'Acoustic Pulse',
-          album: 'Sonic Horizons',
-          genre: 'Ambient',
-          year: 2025,
-          trackNumber: 1,
-          durationMs: 215000,
-          filePath: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-          dateAdded: DateTime.now().millisecondsSinceEpoch,
-          isFavorite: true,
-        ),
-        Song(
-          id: 'demo_2',
-          title: 'Neumorphic Dreams',
-          artist: 'Synthwave Minimal',
-          album: 'Glass & Shadow',
-          genre: 'Electronic',
-          year: 2026,
-          trackNumber: 2,
-          durationMs: 184000,
-          filePath: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-          dateAdded: DateTime.now().millisecondsSinceEpoch - 100000,
-          isFavorite: false,
-        ),
-      ];
-
-      for (var s in demoSongs) {
-        await DatabaseHelper.instance.insertOrUpdateSong(s);
-      }
-
-      await DatabaseHelper.instance.createPlaylist(Playlist(
-        id: 'pl_demo_1',
-        name: 'Chill Beats',
-        description: 'Smooth background melodies',
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-      ));
-      await DatabaseHelper.instance.addSongToPlaylist('pl_demo_1', 'demo_1');
-
-      setState(() {});
-    }
-  }
-
   void _onPlaySong(Song song) {
     final engine = Provider.of<PlaybackEngine>(context, listen: false);
     engine.playSong(song);
@@ -133,6 +80,37 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
+  Future<void> _importLocalMusic() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'flac', 'aac', 'm4a', 'ogg', 'wav', 'opus'],
+        allowMultiple: true,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        int imported = 0;
+        for (var file in result.files) {
+          if (file.path != null) {
+            final song = await MetadataScanner.scanFile(file.path!);
+            if (song != null) {
+              await DatabaseHelper.instance.insertOrUpdateSong(song);
+              imported++;
+            }
+          }
+        }
+        setState(() {});
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Successfully imported $imported audio tracks!')),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error importing music: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
@@ -142,8 +120,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       HomeScreen(
         onSongTap: _onPlaySong,
         onPlaylistTap: (p) => setState(() => _currentIndex = 3),
+        onImportMusic: _importLocalMusic,
       ),
-      LibraryScreen(onSongTap: _onPlaySong),
+      LibraryScreen(
+        onSongTap: _onPlaySong,
+        onImportMusic: _importLocalMusic,
+      ),
       SearchScreen(onSongTap: _onPlaySong),
       PlaylistsScreen(onSongTap: _onPlaySong),
       SettingsScreen(onImportComplete: () => setState(() {})),
@@ -160,7 +142,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             Positioned(
               left: 16,
               right: 16,
-              bottom: 80,
+              bottom: 84,
               child: _buildMiniPlayer(engine, theme),
             ),
         ],
@@ -170,9 +152,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           color: theme.surfaceColor,
           boxShadow: [
             BoxShadow(
-              color: theme.darkShadow.withAlpha(50),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+              color: theme.darkShadow.withAlpha(60),
+              blurRadius: 12,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
@@ -181,7 +163,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           onTap: (index) => setState(() => _currentIndex = index),
           backgroundColor: theme.surfaceColor,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: theme.accentColor,
+          selectedItemColor: theme.textColor,
           unselectedItemColor: theme.subtextColor,
           elevation: 0,
           items: const [
@@ -203,7 +185,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       onTap: _openNowPlaying,
       child: GlassmorphicContainer(
         blur: 15,
-        opacity: 0.85,
+        opacity: 0.95,
         borderRadius: BorderRadius.circular(20),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -212,10 +194,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: theme.accentColor.withAlpha(40),
+                color: theme.textColor.withAlpha(15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(LucideIcons.music, color: theme.accentColor, size: 22),
+              child: Icon(LucideIcons.disc, color: theme.textColor, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -229,11 +211,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ),
             IconButton(
-              icon: Icon(engine.isPlaying ? LucideIcons.pause : LucideIcons.play, color: theme.accentColor, size: 24),
+              icon: Icon(engine.isPlaying ? LucideIcons.pause : LucideIcons.play, color: theme.textColor, size: 24),
               onPressed: engine.togglePlayPause,
             ),
             IconButton(
-              icon: Icon(LucideIcons.skipForward, color: theme.textColor, size: 22),
+              icon: Icon(LucideIcons.skipForward, color: theme.subtextColor, size: 22),
               onPressed: engine.next,
             ),
           ],

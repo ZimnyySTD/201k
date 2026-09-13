@@ -5,9 +5,9 @@ import 'package:palette_generator/palette_generator.dart';
 class ThemeProvider extends ChangeNotifier {
   String _themeMode = 'white_neumorphism'; // 'white_neumorphism', 'dark_neumorphism', 'dynamic'
 
-  Color _primaryColor = const Color(0xFF6C63FF);
-  Color _secondaryColor = const Color(0xFF00B4D8);
-  Color _accentColor = const Color(0xFFFF4B4B);
+  Color _primaryColor = const Color(0xFF000000);
+  Color _secondaryColor = const Color(0xFF333333);
+  Color _accentColor = const Color(0xFF000000);
 
   String get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -16,48 +16,49 @@ class ThemeProvider extends ChangeNotifier {
 
   bool get isDarkMode => _themeMode == 'dark_neumorphism';
 
-  // Neumorphic background color
+  // Pure White or Full Black Neumorphic Background
   Color get backgroundColor {
     if (isDarkMode) {
-      return const Color(0xFF1E1E24);
+      return const Color(0xFF121212); // Full sleek black
     }
-    return const Color(0xFFF2F4F8); // Clean soft white
+    return const Color(0xFFFFFFFF); // Pure minimalist white
   }
 
-  // Neumorphic card/surface color
+  // Pure White or Full Black Neumorphic Surface
   Color get surfaceColor {
     if (isDarkMode) {
-      return const Color(0xFF24242C);
+      return const Color(0xFF181818);
     }
-    return const Color(0xFFF6F8FC);
+    return const Color(0xFFFFFFFF);
   }
 
+  // Strict Monochrome Text (No colored text in library/home)
   Color get textColor {
     if (isDarkMode) {
-      return const Color(0xFFEAEAEA);
+      return const Color(0xFFFFFFFF);
     }
-    return const Color(0xFF1A1D20);
+    return const Color(0xFF000000);
   }
 
   Color get subtextColor {
     if (isDarkMode) {
-      return const Color(0xFFA0A5B5);
+      return const Color(0xFF8E8E93);
     }
-    return const Color(0xFF7E8494);
+    return const Color(0xFF6E6E73);
   }
 
   Color get lightShadow {
     if (isDarkMode) {
-      return const Color(0xFF2D2D38);
+      return const Color(0xFF222222);
     }
-    return Colors.white;
+    return const Color(0xFFFFFFFF);
   }
 
   Color get darkShadow {
     if (isDarkMode) {
-      return const Color(0xFF131317);
+      return const Color(0xFF080808);
     }
-    return const Color(0xFFD3D8E2);
+    return const Color(0xFFD1D5DB); // Soft dual neumorphic shadow
   }
 
   void setThemeMode(String mode) {
@@ -65,7 +66,7 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Extracts dominant colors from album cover image
+  /// Extracts dominant colors from album cover image for Now Playing screen
   Future<void> updateAccentFromImage(String? imagePath) async {
     if (imagePath == null || imagePath.isEmpty) {
       _resetDefaultColors();
@@ -87,8 +88,8 @@ class ThemeProvider extends ChangeNotifier {
         maximumColorCount: 12,
       );
 
-      _primaryColor = palette.dominantColor?.color ?? palette.vibrantColor?.color ?? const Color(0xFF6C63FF);
-      _secondaryColor = palette.mutedColor?.color ?? palette.lightVibrantColor?.color ?? const Color(0xFF00B4D8);
+      _primaryColor = palette.dominantColor?.color ?? palette.vibrantColor?.color ?? const Color(0xFF000000);
+      _secondaryColor = palette.mutedColor?.color ?? palette.lightVibrantColor?.color ?? const Color(0xFF555555);
       _accentColor = palette.vibrantColor?.color ?? palette.lightVibrantColor?.color ?? _primaryColor;
 
       notifyListeners();
@@ -99,9 +100,9 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   void _resetDefaultColors() {
-    _primaryColor = const Color(0xFF6C63FF);
-    _secondaryColor = const Color(0xFF00B4D8);
-    _accentColor = const Color(0xFFFF4B4B);
+    _primaryColor = isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+    _secondaryColor = const Color(0xFF555555);
+    _accentColor = isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
     notifyListeners();
   }
 }

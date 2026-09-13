@@ -45,7 +45,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         backgroundColor: theme.backgroundColor,
         elevation: 0,
-        title: Text('Search Music', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold)),
+        title: Text('Search Music', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold, fontSize: 22)),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -62,7 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   hintText: 'Type song name, artist, or album...',
                   hintStyle: TextStyle(color: theme.subtextColor),
                   border: InputBorder.none,
-                  icon: Icon(LucideIcons.search, color: theme.accentColor),
+                  icon: Icon(LucideIcons.search, color: theme.textColor),
                   suffixIcon: _controller.text.isNotEmpty
                       ? IconButton(
                           icon: Icon(LucideIcons.x, color: theme.subtextColor),
@@ -78,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: _isSearching
-                  ? Center(child: CircularProgressIndicator(color: theme.accentColor))
+                  ? Center(child: CircularProgressIndicator(color: theme.textColor))
                   : _results.isEmpty
                       ? Center(
                           child: Column(
@@ -94,6 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         )
                       : ListView.separated(
+                          padding: const EdgeInsets.only(bottom: 140),
                           itemCount: _results.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (context, index) {
@@ -108,10 +109,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: theme.accentColor.withAlpha(25),
+                                      color: theme.textColor.withAlpha(15),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Icon(LucideIcons.music, color: theme.accentColor, size: 22),
+                                    child: Icon(LucideIcons.music, color: theme.textColor, size: 22),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -124,7 +125,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ],
                                     ),
                                   ),
-                                  Icon(LucideIcons.playCircle, color: theme.accentColor, size: 24)
+                                  Icon(LucideIcons.playCircle, color: theme.textColor, size: 24)
                                 ],
                               ),
                             );

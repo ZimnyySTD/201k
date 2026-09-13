@@ -15,10 +15,10 @@ class NeumorphicCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding,
-    this.borderRadius = 18.0,
+    this.borderRadius = 20.0,
     this.onTap,
     this.isPressed = false,
-    this.depth = 6.0,
+    this.depth = 5.0,
   });
 
   @override
@@ -73,7 +73,7 @@ class NeumorphicButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
-    final bg = color ?? (isSelected ? theme.accentColor : theme.surfaceColor);
+    final bg = color ?? (isSelected ? theme.textColor : theme.surfaceColor);
 
     return GestureDetector(
       onTap: onTap,
@@ -113,13 +113,14 @@ class GlassmorphicContainer extends StatelessWidget {
     super.key,
     required this.child,
     this.blur = 20.0,
-    this.opacity = 0.25,
+    this.opacity = 0.9,
     this.borderRadius = const BorderRadius.all(Radius.circular(24.0)),
     this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeProvider>(context);
     return ClipRRect(
       borderRadius: borderRadius,
       child: BackdropFilter(
@@ -127,12 +128,19 @@ class GlassmorphicContainer extends StatelessWidget {
         child: Container(
           padding: padding ?? const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha((opacity * 255).toInt()),
+            color: theme.surfaceColor.withAlpha((opacity * 255).toInt()),
             borderRadius: borderRadius,
             border: Border.all(
-              color: Colors.white.withAlpha(50),
-              width: 1.5,
+              color: theme.textColor.withAlpha(20),
+              width: 1.0,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.darkShadow.withAlpha(40),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: child,
         ),

@@ -9,8 +9,9 @@ import '../services/metadata_scanner.dart';
 
 class LibraryScreen extends StatefulWidget {
   final Function(Song) onSongTap;
+  final VoidCallback onImportMusic;
 
-  const LibraryScreen({super.key, required this.onSongTap});
+  const LibraryScreen({super.key, required this.onSongTap, required this.onImportMusic});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -55,8 +56,15 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
       appBar: AppBar(
         backgroundColor: theme.backgroundColor,
         elevation: 0,
-        title: Text('Music Library', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold)),
+        title: Text('Music Library', style: TextStyle(color: theme.textColor, fontWeight: FontWeight.bold, fontSize: 22)),
         actions: [
+          IconButton(
+            icon: Icon(LucideIcons.folderPlus, color: theme.textColor),
+            onPressed: () async {
+              widget.onImportMusic();
+              await _loadSongs();
+            },
+          ),
           PopupMenuButton<String>(
             icon: Icon(LucideIcons.arrowUpDown, color: theme.textColor),
             onSelected: (val) {
@@ -82,8 +90,8 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          indicatorColor: theme.accentColor,
-          labelColor: theme.accentColor,
+          indicatorColor: theme.textColor,
+          labelColor: theme.textColor,
           unselectedLabelColor: theme.subtextColor,
           tabs: const [
             Tab(text: 'Songs'),
@@ -131,14 +139,14 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildSongsTab(ThemeProvider theme) {
-    if (_isLoading) return Center(child: CircularProgressIndicator(color: theme.accentColor));
+    if (_isLoading) return Center(child: CircularProgressIndicator(color: theme.textColor));
     final list = _filteredSongs;
-    if (list.isEmpty) return _buildEmptyState(theme, 'No songs found');
+    if (list.isEmpty) return _buildEmptyState(theme, 'No songs found in library');
 
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       itemCount: list.length,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 140),
       itemBuilder: (context, index) {
         final song = list[index];
         return Padding(
@@ -153,10 +161,10 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: theme.accentColor.withAlpha(20),
+                    color: theme.textColor.withAlpha(15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(LucideIcons.music, color: theme.accentColor, size: 24),
+                  child: Icon(LucideIcons.music, color: theme.textColor, size: 24),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -271,7 +279,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
 
     final keys = albums.keys.toList();
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 140),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: 0.85),
       itemCount: keys.length,
       itemBuilder: (context, index) {
@@ -288,10 +296,10 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: theme.accentColor.withAlpha(20),
+                    color: theme.textColor.withAlpha(15),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(LucideIcons.disc, color: theme.accentColor, size: 48),
+                  child: Icon(LucideIcons.disc, color: theme.textColor, size: 48),
                 ),
               ),
               const SizedBox(height: 8),
@@ -313,7 +321,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
 
     final keys = artists.keys.toList();
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 140),
       itemCount: keys.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -324,7 +332,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              CircleAvatar(backgroundColor: theme.accentColor.withAlpha(30), child: Icon(LucideIcons.user, color: theme.accentColor)),
+              CircleAvatar(backgroundColor: theme.textColor.withAlpha(20), child: Icon(LucideIcons.user, color: theme.textColor)),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,6 +364,16 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
           Icon(LucideIcons.folderOpen, size: 48, color: theme.subtextColor),
           const SizedBox(height: 12),
           Text(msg, style: TextStyle(color: theme.subtextColor, fontSize: 16)),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(backgroundColor: theme.textColor, foregroundColor: theme.surfaceColor),
+            icon: const Icon(LucideIcons.folderPlus, size: 18),
+            label: const Text('Import Local Songs'),
+            onPressed: () async {
+              widget.onImportMusic();
+              await _loadSongs();
+            },
+          )
         ],
       ),
     );

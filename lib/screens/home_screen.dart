@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/theme_provider.dart';
-import '../services/playback_engine.dart';
 import '../widgets/neumorphic_widgets.dart';
 import '../models/song.dart';
 import '../models/playlist.dart';
@@ -11,8 +10,14 @@ import '../database/database_helper.dart';
 class HomeScreen extends StatefulWidget {
   final Function(Song) onSongTap;
   final Function(Playlist) onPlaylistTap;
+  final VoidCallback onImportMusic;
 
-  const HomeScreen({super.key, required this.onSongTap, required this.onPlaylistTap});
+  const HomeScreen({
+    super.key,
+    required this.onSongTap,
+    required this.onPlaylistTap,
+    required this.onImportMusic,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -52,28 +57,43 @@ class _HomeScreenState extends State<HomeScreen> {
     final theme = Provider.of<ThemeProvider>(context);
 
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator(color: theme.accentColor));
+      return Center(child: CircularProgressIndicator(color: theme.textColor));
     }
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 32, bottom: 140),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Pulse Music',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: theme.textColor,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'High-Fidelity Audio Experience',
-            style: TextStyle(fontSize: 14, color: theme.subtextColor),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pulse Music',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: theme.textColor,
+                      letterSpacing: -0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'High-Fidelity Audio Experience',
+                    style: TextStyle(fontSize: 13, color: theme.subtextColor, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              NeumorphicButton(
+                size: 48,
+                onTap: widget.onImportMusic,
+                child: Icon(LucideIcons.folderPlus, color: theme.textColor, size: 22),
+              ),
+            ],
           ),
           const SizedBox(height: 28),
 
@@ -153,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(LucideIcons.music, size: 36, color: theme.accentColor),
+                            Icon(LucideIcons.music, size: 36, color: theme.textColor),
                             const SizedBox(height: 12),
                             Text(
                               playlist.name,
@@ -178,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(LucideIcons.disc, size: 48, color: theme.subtextColor),
+                    Icon(LucideIcons.disc, size: 56, color: theme.subtextColor),
                     const SizedBox(height: 16),
                     Text(
                       'Your Library is Empty',
@@ -186,10 +206,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Go to Library or Settings to import local audio files.',
+                      'Tap the button below to import local audio files (MP3, FLAC, AAC, WAV, OPUS, OGG).',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: theme.subtextColor),
+                      style: TextStyle(color: theme.subtextColor, fontSize: 13),
                     ),
+                    const SizedBox(height: 20),
+                    NeumorphicButton(
+                      size: 56,
+                      color: theme.textColor,
+                      onTap: () async {
+                        widget.onImportMusic();
+                        await _loadHomeData();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.folderPlus, color: theme.surfaceColor, size: 20),
+                          const SizedBox(width: 8),
+                          Text('Import Audio Files', style: TextStyle(color: theme.surfaceColor, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -203,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSectionTitle(ThemeProvider theme, String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: theme.accentColor),
+        Icon(icon, size: 20, color: theme.textColor),
         const SizedBox(width: 8),
         Text(
           title,
@@ -229,8 +266,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   width: 120,
                   height: 90,
-                  color: theme.accentColor.withAlpha(30),
-                  child: Icon(LucideIcons.music, color: theme.accentColor, size: 32),
+                  color: theme.textColor.withAlpha(15),
+                  child: Icon(LucideIcons.disc, color: theme.textColor, size: 36),
                 ),
               ),
               const SizedBox(height: 8),
@@ -254,10 +291,10 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: theme.accentColor.withAlpha(25),
+              color: theme.textColor.withAlpha(15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(LucideIcons.music, color: theme.accentColor, size: 22),
+            child: Icon(LucideIcons.music, color: theme.textColor, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -271,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(song.isFavorite ? LucideIcons.heart : LucideIcons.heart, color: song.isFavorite ? theme.accentColor : theme.subtextColor, size: 20),
+            icon: Icon(song.isFavorite ? LucideIcons.heart : LucideIcons.heart, color: song.isFavorite ? theme.textColor : theme.subtextColor, size: 20),
             onPressed: () async {
               await DatabaseHelper.instance.toggleFavorite(song.id, !song.isFavorite);
               _loadHomeData();
